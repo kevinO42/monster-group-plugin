@@ -68,6 +68,10 @@ class CustomerForm extends BaseController
          return $output;
      }
 
+     /**
+     * Call javscript file for form submission
+     * @return string
+     */
      public function load_scripts()
      {
         // register javascript file
@@ -103,7 +107,7 @@ class CustomerForm extends BaseController
 
      /**
      * Validates form post
-     * @return json
+     * @return boolean or array
      */
      public function validate_customer_form(array $params)
      {
@@ -132,7 +136,7 @@ class CustomerForm extends BaseController
 
      /**
      * Handles form submission
-     * @return json
+     * @return array
      */
      public function handle_customer_form($data)
      {
