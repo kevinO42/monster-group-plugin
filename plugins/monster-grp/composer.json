@@ -1,0 +1,12 @@
+{
+    "name": "kevin042/monster-grp",
+    "description": "Monster Group Leads Plugin",
+    "type": "project",
+    "license": "GPL",
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {"Inc:\\": "./inc"},
+        "classmap": ["inc/"]
+    }
+}
