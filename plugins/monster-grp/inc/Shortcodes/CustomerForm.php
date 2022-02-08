@@ -46,13 +46,13 @@ class CustomerForm extends BaseController
          $output .= '<form id="monster-customer-form">';
          $output .= '<div>';
          $output .= '<label for="name">Name</label>';
-         $output .= '<input type="text" name="name" placeholder="Your Name" required />';
+         $output .= '<input type="text" name="name" placeholder="Your Name" />';
          $output .= '</div><div>';
          $output .= '<label for="email">Email</label>';
-         $output .= '<input type="email" name="email" placeholder="Your Email" required />';
+         $output .= '<input type="email" name="email" placeholder="Your Email" />';
          $output .= '</div><div>';
          $output .= '<label for="phone_number">Phone Number</label>';
-         $output .= '<input type="text" name="phone_number" placeholder="Your Phone Number" required />';
+         $output .= '<input type="text" name="phone_number" placeholder="Your Phone Number" />';
          $output .= '</div><div>';
          $output .= '<label for="service">Service Required</label>';
          $output .= '<select name="service">';
@@ -102,6 +102,35 @@ class CustomerForm extends BaseController
      }
 
      /**
+     * Validates form post
+     * @return json
+     */
+     public function validate_customer_form(array $params)
+     {
+        if (isset($params)) {
+            $errors = new \WP_Error;
+
+            if ( empty($params['name']) || empty($params['email']) || empty($params['phone_number'])) {
+                $errors->add('field', 'Required form field is missing');
+            }
+    
+            if (4 > strlen($params['name']) ) {
+                $errors->add('name_length', 'Name too short. At least 4 characters is required');
+            }
+    
+            if (!is_email($params['email'])) {
+                $errors->add('email_invalid', 'Email is not valid');
+            }
+    
+            if (is_wp_error($errors)) {
+                return $errors->get_error_messages();
+            }
+
+            return false;
+        }
+     }
+
+     /**
      * Handles form submission
      * @return json
      */
@@ -117,16 +146,27 @@ class CustomerForm extends BaseController
             return new WP_REST_Response('Customer form not sent', 422);
         }
 
-        $table = $wpdb->prefix . 'mg_leads';
-        $post = array(
-            'name' => sanitize_text_field($params['name']),
-            'email' =>sanitize_email($params['email']),
-            'phone_number' => sanitize_text_field($params['phone_number']),
-            'service' => sanitize_text_field($params['service'])
-        );
-        $result = $wpdb->insert($table, $post);
+        $validation = $this->validate_customer_form($params);
 
-        return json_encode($result);
+        if (!$validation) {
+            $table = $wpdb->prefix . 'mg_leads';
+            $post = array(
+                'name' => sanitize_text_field($params['name']),
+                'email' =>sanitize_email($params['email']),
+                'phone_number' => sanitize_text_field($params['phone_number']),
+                'service' => sanitize_text_field($params['service'])
+            );
+            $result = $wpdb->insert($table, $post);
+
+            return array(
+                'status' => $result // returns true
+            );
+        }
+
+        return array(
+            'status' => false,
+            'errors' => $validation
+        );
      }
 
      /**
