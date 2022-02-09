@@ -14,6 +14,9 @@
                 //show alert message
                 $('#response-message').show();
 
+                // clear first alert message
+                $('#response-message').html('').append('');
+
                 if (response.status) {
                     // add success message
                     $('#response-message').append('<span class="response-success-message">Thank you! We will be in contact shortly.</span>');
@@ -35,12 +38,6 @@
                     $.each(response.errors, function(index, value) {
                         $("#response-message ul").append("<li>" + value + "</li>");
                       });
-
-                    // removes list alert message
-                    setTimeout(function() { 
-                        $('#response-message').html('').append('');
-                        $('#response-message').hide();
-                    }, 3000);
                 }
             }
         })
